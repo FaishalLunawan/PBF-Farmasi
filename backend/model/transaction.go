@@ -1,0 +1,12 @@
+package model
+
+import "time"
+
+type Transaction struct {
+	ID              uint      `gorm:"primaryKey"`
+	ProductID       uint
+	Quantity        int
+	DiscountPercent int
+	TotalPrice      float64
+	CreatedAt       time.Time
+}
