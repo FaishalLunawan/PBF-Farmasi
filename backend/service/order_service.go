@@ -34,24 +34,20 @@ func (s *OrderService) CreateOrder(
 
 	return s.db.Transaction(func(tx *gorm.DB) error {
 
-		// 🔐 LOCK ROW
 		product, err := s.productRepo.FindByIDForUpdate(tx, productID)
 		if err != nil {
 			return err
 		}
 
-		// ❌ stok tidak cukup
 		if product.Stock < qty {
 			return errors.New("stok tidak cukup")
 		}
 
-		// kurangi stok
 		product.Stock -= qty
 		if err := tx.Save(product).Error; err != nil {
 			return err
 		}
 
-		// hitung total
 		total := calculateTotal(product.Price, qty, discount)
 
 		order := model.Transaction{
@@ -61,7 +57,6 @@ func (s *OrderService) CreateOrder(
 			TotalPrice:    total,
 		}
 
-		// simpan order (pakai repo biar konsisten)
 		if err := s.orderRepo.Create(tx, &order); err != nil {
 			return err
 		}
