@@ -39,7 +39,7 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param product body model.Product true "Product"
-// @Success 201 {object} model.Product
+// @Success 200 {object} model.Product
 // @Router /products [post]
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	var product model.Product

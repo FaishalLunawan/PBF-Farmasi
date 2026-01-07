@@ -3,6 +3,8 @@ package service
 import (
 	"PBF-Farmasi/backend/model"
 	"PBF-Farmasi/backend/repository"
+	 "strings"
+	 "errors"
 )
 
 type ProductService struct {
@@ -18,5 +20,12 @@ func (s *ProductService) GetAll() ([]model.Product, error) {
 }
 
 func (s *ProductService) Create(p *model.Product) error {
-	return s.repo.Create(p)
+	err := s.repo.Create(p)
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key") {
+			return errors.New("produk sudah ada")
+		}
+		return err
+	}
+	return nil
 }

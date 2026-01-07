@@ -6,7 +6,7 @@ import (
 )
 
 func ConnectDB() *gorm.DB {
-	dsn := "host=localhost user=postgres password= dbname=indobat port=5432 sslmode=disable"
+	dsn := "host=localhost user=postgres password=postgres dbname=indobat port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("gagal konek database")
