@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"PBF-Farmasi/backend/model"
 	"PBF-Farmasi/backend/repository"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type OrderService struct {
-	db         *gorm.DB
+	db          *gorm.DB
 	productRepo *repository.ProductRepository
 	orderRepo   *repository.OrderRepository
 }
@@ -31,40 +32,49 @@ func (s *OrderService) CreateOrder(
 	discount int,
 ) error {
 
-	tx := s.db.Begin()
+	return s.db.Transaction(func(tx *gorm.DB) error {
 
-	product, err := s.productRepo.FindByIDForUpdate(tx, productID)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+		// 🔐 LOCK ROW
+		product, err := s.productRepo.FindByIDForUpdate(tx, productID)
+		if err != nil {
+			return err
+		}
 
-	if product.Stock < qty {
-		tx.Rollback()
+		// ❌ stok tidak cukup
+		if product.Stock < qty {
+			return errors.New("stok tidak cukup")
+		}
+
+		// kurangi stok
+		product.Stock -= qty
+		if err := tx.Save(product).Error; err != nil {
+			return err
+		}
+
+		// hitung total
+		total := calculateTotal(product.Price, qty, discount)
+
+		order := model.Transaction{
+			ProductID: product.ID,
+			Quantity:  qty,
+			DiscountPercent: discount,
+			TotalPrice:    total,
+		}
+
+		// simpan order (pakai repo biar konsisten)
+		if err := s.orderRepo.Create(tx, &order); err != nil {
+			return err
+		}
+
 		return nil
-		// return err.New("stok tidak cukup")
+	})
+}
+func calculateTotal(price float64, qty int, discount int) float64 {
+	total := price * float64(qty)
+
+	if discount > 0 {
+		total = total - (total * float64(discount) / 100)
 	}
 
-	total := (product.Price * float64(qty)) *
-		(1 - float64(discount)/100)
-
-	// product.Stock -= qty
-	// if err := s.productRepo.Update(tx, product); err != nil {
-	// 	tx.Rollback()
-	// 	return err
-	// }
-
-	trx := &model.Transaction{
-		ProductID:       productID,
-		Quantity:        qty,
-		DiscountPercent: discount,
-		TotalPrice:      total,
-	}
-
-	if err := s.orderRepo.Create(tx, trx); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit().Error
+	return total
 }

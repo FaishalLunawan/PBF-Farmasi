@@ -17,20 +17,10 @@ func NewOrderHandler(s *service.OrderService) *OrderHandler {
 	return &OrderHandler{s}
 }
 
-// CreateOrder godoc
-// @Summary Buat order
-// @Tags Orders
-// @Accept json
-// @Produce json
-// @Param order body dto.CreateOrderRequest true "Order"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
-// @Failure 409 {object} map[string]string
-// @Router /order [post]
 func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	var req dto.CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error() + "quantity cannot be 0"})
 		return
 	}
 

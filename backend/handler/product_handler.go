@@ -2,7 +2,7 @@ package handler
 
 import (
 	"net/http"
-
+	"PBF-Farmasi/backend/dto"
 	"PBF-Farmasi/backend/model"
 	"PBF-Farmasi/backend/service"
 
@@ -17,13 +17,6 @@ func NewProductHandler(s *service.ProductService) *ProductHandler {
 	return &ProductHandler{service: s}
 }
 
-// GetProducts godoc
-// @Summary List produk
-// @Description Ambil semua data produk
-// @Tags Products
-// @Produce json
-// @Success 200 {array} model.Product
-// @Router /products [get]
 func (h *ProductHandler) GetProducts(c *gin.Context) {
 	products, err := h.service.GetAll()
 	if err != nil {
@@ -33,25 +26,26 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 	c.JSON(http.StatusOK, products)
 }
 
-// CreateProduct godoc
-// @Summary Tambah produk baru
-// @Tags Products
-// @Accept json
-// @Produce json
-// @Param product body model.Product true "Product"
-// @Success 200 {object} model.Product
-// @Router /products [post]
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
-	var product model.Product
-	if err := c.ShouldBindJSON(&product); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	var req dto.CreateProductRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error() + "price cannot be 0"})
+
 		return
 	}
 
+	product := model.Product{
+		Name:  req.Name,
+		Stock: req.Stock,
+		Price: req.Price,
+	}
+
 	if err := h.service.Create(&product); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusCreated, product)
 }
+

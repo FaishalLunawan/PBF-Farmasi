@@ -31,9 +31,13 @@ func (r *ProductRepository) FindByIDForUpdate(
 
 	var product model.Product
 	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-		Where("id = ?", id).
-		First(&product).Error
+		First(&product, id).Error
 
-	return &product, err
+	if err != nil {
+		return nil, err
+	}
+
+	return &product, nil
 }
+
 

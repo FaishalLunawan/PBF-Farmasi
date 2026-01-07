@@ -23,8 +23,8 @@ func (s *ProductService) Create(p *model.Product) error {
 	err := s.repo.Create(p)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
-			return errors.New("produk sudah ada")
-		}
+			return errors.New("product already exists")
+		} 
 		return err
 	}
 	return nil
