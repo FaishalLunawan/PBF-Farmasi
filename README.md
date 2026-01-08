@@ -3,7 +3,7 @@ Sistem manajemen stok sederhana untuk PBF Farmasi yang bisa menangani keluar-mas
 ![Mini-Indobat Inventory_page-0001](https://github.com/user-attachments/assets/d0fb4e0d-0f49-4feb-9230-f488237bdaa0)
 
 ## **Teknologi**
-- **Backend**: Go + Gin (swagger + CORS
+- **Backend**: Go + Gin (swagger + CORS)
 - **Frontend**: Next.js (daisyUI + lucide icon + toast reactify)
 - **Database**: PostgreSQL
 ## **API Endpoints**
@@ -27,7 +27,7 @@ Menggunakan docker agar lebih simple dengan satu command langsung menjalankan pr
 ### Langkah:
 ```bash
 # 1. Clone repository
-git clone https://github.com/FaishalLunawan/PBF-Farmasi.git
+git clone git@github.com:FaishalLunawan/PBF-Farmasi.git
 cd PBF-Farmasi
 # 2. Jalankan semua services
 docker-compose up -d
@@ -68,5 +68,6 @@ docker-compose down -v && docker-compose up -d
 
 
 ---
+
 
 
