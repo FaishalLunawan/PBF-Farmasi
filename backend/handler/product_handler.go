@@ -30,8 +30,16 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	var req dto.CreateProductRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error() + "price cannot be 0"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid input format",
+		})
+		return
+	}
 
+	if req.Price <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Price must be greater than 0",
+		})
 		return
 	}
 
@@ -42,10 +50,11 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	}
 
 	if err := h.service.Create(&product); err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
 	c.JSON(http.StatusCreated, product)
 }
-

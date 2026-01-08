@@ -20,7 +20,7 @@ func NewOrderHandler(s *service.OrderService) *OrderHandler {
 func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	var req dto.CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error() + "quantity cannot be 0"})
+		c.JSON(http.StatusBadRequest, gin.H{"error":"quantity cannot be 0"})
 		return
 	}
 
