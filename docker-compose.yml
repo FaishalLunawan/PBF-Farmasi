@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # 1. Database PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: pbf-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: indobat
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # 2. Backend Go API
+  backend:
+    build: ./backend
+    container_name: pbf-api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Database connection
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: indobat
+      # App settings
+      GIN_MODE: release
+      PORT: 8080
+    depends_on:
+      - postgres
+
+  # 3. Frontend Next.js
+  frontend:
+    build: ./frontend
+    container_name: pbf-web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080/api
+      NODE_ENV: production
+    depends_on:
+      - backend
+
+  # 4. pgAdmin (Database GUI)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pbf-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pbf.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
